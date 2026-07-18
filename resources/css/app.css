@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.jsx';
+
+@theme {
+    --font-sans: 'Poppins', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-indigo-50: #f4f4f5;
+    --color-indigo-100: #e4e4e7;
+    --color-indigo-200: #d4d4d8;
+    --color-indigo-300: #a1a1aa;
+    --color-indigo-400: #71717a;
+    --color-indigo-500: #52525b;
+    --color-indigo-600: #27272a;
+    --color-indigo-700: #18181b;
+    --color-indigo-800: #0f0f11;
+    --color-indigo-900: #09090b;
+    --color-indigo-950: #020203;
+
+    --color-purple-900: #09090b;
+    --color-purple-800: #18181b;
+    --color-purple-600: #27272a;
+}
+
+:root {
+  font-family: 'Poppins', sans-serif;
+  --color-primary: #27272a;
+  --color-primary-dark: #18181b;
+  --color-primary-light: #f4f4f5;
+  --color-secondary: #52525b;
+  --color-accent: #a1a1aa;
+}
+
+/* Global Custom Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #a1a1aa transparent;
+}
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #a1a1aa;
+  border-radius: 10px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #27272a;
+}
+
+.acc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.acc-body.open {
+  max-height: 2000px;
+}
+
+.swatch {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  cursor: pointer;
+}
+.swatch:hover { transform: scale(1.2); z-index: 5; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* Ensure SweetAlert2 overlays display in front of the slide-over account drawer */
+.swal2-container {
+  z-index: 99999 !important;
+}

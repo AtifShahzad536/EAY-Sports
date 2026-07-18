@@ -1,0 +1,5 @@
+- [x] Add the PDF generation route in `routes/admin.php`
+- [x] Add the `pdf` method to `DealerOrderAdminController.php`
+- [x] Create the print-optimized Blade view `resources/views/admin/dealer-orders/pdf.blade.php`
+- [x] Update the `resources/views/admin/dealer-orders/show.blade.php` to add the button
+- [x] Manual verification and clean-up
