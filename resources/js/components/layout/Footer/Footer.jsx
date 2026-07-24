@@ -119,25 +119,34 @@ export const Footer = () => {
               <div key={col.title}>
                 <h4 className="text-sm uppercase tracking-widest font-bold text-slate-400 mb-6">{col.title}</h4>
                 <ul className="space-y-3.5">
-                  {col.links && col.links.map(item => (
-                    <li key={item.label}>
-                      {item.href && item.href.startsWith('/') ? (
-                        <Link 
-                          href={item.href}
-                          className="text-slate-600 hover:text-indigo-600 transition-colors text-[15px] text-left hover:translate-x-1 duration-200 transform block"
-                        >
-                          {item.label}
-                        </Link>
-                      ) : (
-                        <a 
-                          href={item.href || '#'}
-                          className="text-slate-600 hover:text-indigo-600 transition-colors text-[15px] text-left hover:translate-x-1 duration-200 transform block"
-                        >
-                          {item.label}
-                        </a>
-                      )}
-                    </li>
-                  ))}
+                  {col.links && col.links.map(item => {
+                    const finalHref = item.href && (item.href === '/faq' || item.href === '/faq/')
+                      ? (item.label.toLowerCase().includes('return') ? '/faq?category=returns' 
+                         : item.label.toLowerCase().includes('shipping') ? '/faq?category=shipping' 
+                         : item.label.toLowerCase().includes('order') ? '/faq?category=orders'
+                         : item.label.toLowerCase().includes('payment') ? '/faq?category=payment'
+                         : '/faq')
+                      : item.href;
+                    return (
+                      <li key={item.label}>
+                        {finalHref && finalHref.startsWith('/') ? (
+                          <Link 
+                            href={finalHref}
+                            className="text-slate-600 hover:text-indigo-600 transition-colors text-[15px] text-left hover:translate-x-1 duration-200 transform block"
+                          >
+                            {item.label}
+                          </Link>
+                        ) : (
+                          <a 
+                            href={finalHref || '#'}
+                            className="text-slate-600 hover:text-indigo-600 transition-colors text-[15px] text-left hover:translate-x-1 duration-200 transform block"
+                          >
+                            {item.label}
+                          </a>
+                        )}
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             ))}

@@ -61,6 +61,10 @@ Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 // Rate limit: 3 submissions per minute — prevents contact form spam
 Route::post('/contact', [ContactController::class, 'submit'])->middleware('throttle:3,1')->name('contact.submit');
 Route::get('/auth', fn () => inertia('Auth'))->middleware('redirect.if.auth')->name('auth');
+Route::get('/forgot-password', [StoreAuthController::class, 'showForgotPassword'])->middleware('redirect.if.auth')->name('password.request');
+Route::post('/forgot-password', [StoreAuthController::class, 'sendResetLink'])->middleware(['redirect.if.auth', 'throttle:3,1'])->name('password.email');
+Route::get('/reset-password/{token}', [StoreAuthController::class, 'showResetForm'])->middleware('redirect.if.auth')->name('password.reset');
+Route::post('/reset-password', [StoreAuthController::class, 'resetPassword'])->middleware(['redirect.if.auth', 'throttle:5,1'])->name('password.update');
 Route::get('/banner', [HomeController::class, 'GetBanner'])->name('banner');
 
 /*
@@ -71,6 +75,7 @@ Route::get('/banner', [HomeController::class, 'GetBanner'])->name('banner');
 Route::get('/products', [ProductController::class, 'index'])->name('products');
 Route::get('/product-details/{id}', [ProductController::class, 'show'])->name('product-details');
 Route::post('/product-details/{product}/reviews', [ProductController::class, 'storeReview'])->name('products.reviews.store');
+Route::get('/builder/models', [BuilderController::class, 'subModels'])->name('builder.models');
 Route::get('/builder/{id?}', [BuilderController::class, 'index'])->where('id', '.*')->name('builder');
 Route::get('/dealer-locator', [DealerLocatorController::class, 'index'])->name('dealer-locator');
 

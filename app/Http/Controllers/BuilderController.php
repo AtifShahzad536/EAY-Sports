@@ -19,7 +19,14 @@ class BuilderController extends Controller
         $productId = $request->query('product_id');
         $categoryId = $request->query('category_id');
 
-        $query = BuilderModel::where('status', true);
+        $query = BuilderModel::with('category')->where('status', true);
+        
+        // On landing page grid (/builder), strictly show ONLY featured models selected by admin
+        if (! $id) {
+            $query->where('is_featured', true);
+        }
+
+        $query->orderBy('id', 'asc');
 
         if ($productId) {
             $product = Product::with('categories')->find($productId);
@@ -52,6 +59,7 @@ class BuilderController extends Controller
                     'thumbnail' => $model->thumbnail,
                     'mapping' => $mapping,
                     'layers_metadata' => $model->layers_metadata ?? (object) [],
+                    'category' => $model->category ? $model->category->name : 'General',
                 ];
             });
             $pagination = null;
@@ -68,6 +76,7 @@ class BuilderController extends Controller
                     'thumbnail' => $model->thumbnail,
                     'mapping' => $mapping,
                     'layers_metadata' => $model->layers_metadata ?? (object) [],
+                    'category' => $model->category ? $model->category->name : 'General',
                 ];
             });
             $pagination = [
@@ -100,6 +109,63 @@ class BuilderController extends Controller
             'dynamicDesigns' => $models,
             'defaultPatterns' => $defaultPatterns,
             'defaultLogos' => $defaultLogos,
+            'pagination' => $pagination,
+        ]);
+    }
+
+    /**
+     * Show category / sub-models listing before opening 3D Builder.
+     */
+    public function subModels(Request $request)
+    {
+        $categoryName = $request->query('category', '');
+        $query = BuilderModel::where('status', true);
+
+        if ($categoryName) {
+            $query->where(function($q) use ($categoryName) {
+                $q->where('name', 'LIKE', '%'.$categoryName.'%')
+                  ->orWhereHas('category', function($catQ) use ($categoryName) {
+                      $catQ->where('name', 'LIKE', '%'.$categoryName.'%');
+                  });
+            });
+        }
+
+        $defaultMapping = [
+            'Body' => 'primary',
+            'Front' => 'primary',
+            'Back' => 'primary',
+            'R_Sleeve' => 'secondary',
+            'L_Sleeve' => 'secondary',
+            'Neck' => 'third',
+            'Mesh' => 'third',
+        ];
+
+        // Paginate by 6 models per page
+        $paginator = $query->latest()->paginate(6);
+        $models = collect($paginator->items())->map(function ($model) use ($defaultMapping) {
+            $mapping = is_array($model->mapping) && ! empty($model->mapping) ? $model->mapping : $defaultMapping;
+
+            return [
+                'id' => 'M'.$model->id,
+                'name' => strtoupper($model->name),
+                'modelUrl' => $model->model_url,
+                'thumbnail' => $model->thumbnail,
+                'mapping' => $mapping,
+                'layers_metadata' => $model->layers_metadata ?? (object) [],
+                'category' => $model->category ? $model->category->name : 'General',
+            ];
+        });
+
+        $pagination = [
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+        ];
+
+        return Inertia::render('ModelSelectionPage', [
+            'categoryName' => $categoryName,
+            'models' => $models,
             'pagination' => $pagination,
         ]);
     }

@@ -18,20 +18,15 @@ export const VideoShowcase = ({ showcaseVideos }) => {
   const [inView, setInView] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Default values / fallbacks
-  const defaultVideos = [
-    {
-      phase_name: "Action Phase",
-      video_url: "https://www.select-sport.com/cdn/shop/videos/c/vp/05b072ff0f6547d0ac4a35024391ff3f/05b072ff0f6547d0ac4a35024391ff3f.HD-1080p-7.2Mbps-22875215.mp4?v=0"
-    },
-    {
-      phase_name: "Craft Phase",
-      video_url: "https://www.select-sport.com/cdn/shop/videos/c/vp/04457a95c3a744be95879b0826d72cc9/04457a95c3a744be95879b0826d72cc9.HD-1080p-7.2Mbps-12161544.mp4?v=0"
-    }
-  ]
+  // Find active uploaded showcase videos or default to null
+  const matchedVideo1 = showcaseVideos?.find(v => v.phase_name?.toLowerCase().includes('action') && v.video_url);
+  const matchedVideo2 = showcaseVideos?.find(v => v.phase_name?.toLowerCase().includes('craft') && v.video_url);
 
-  const video1 = (showcaseVideos && showcaseVideos[0]) ? showcaseVideos[0] : defaultVideos[0]
-  const video2 = (showcaseVideos && showcaseVideos[1]) ? showcaseVideos[1] : defaultVideos[1]
+  const video1 = matchedVideo1 || (showcaseVideos && showcaseVideos[0] && showcaseVideos[0].video_url ? showcaseVideos[0] : null);
+  const video2 = matchedVideo2 || (showcaseVideos && showcaseVideos[1] && showcaseVideos[1].video_url && showcaseVideos[1] !== video1 ? showcaseVideos[1] : null);
+
+  const phaseName1 = video1?.phase_name || "Action Phase";
+  const phaseName2 = video2?.phase_name || "Craft Phase";
 
   useEffect(() => {
     const checkMobile = () => {
@@ -136,24 +131,30 @@ export const VideoShowcase = ({ showcaseVideos }) => {
             >
               <div className="absolute inset-0 bg-indigo-900/10 mix-blend-overlay z-10 pointer-events-none" />
               {inView ? (
-                <video
-                  key={video1.video_url}
-                  ref={videoRef1}
-                  autoPlay={!isMobile}
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                >
-                  <source src={video1.video_url} type="video/mp4" />
-                </video>
+                video1?.video_url ? (
+                  <video
+                    key={video1.video_url}
+                    ref={videoRef1}
+                    autoPlay={!isMobile}
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  >
+                    <source src={video1.video_url} type="video/mp4" />
+                  </video>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-slate-900 to-indigo-950 flex flex-col items-center justify-center text-white select-none">
+                    <span className="text-sm font-black uppercase tracking-[0.3em] opacity-40">videos</span>
+                  </div>
+                )
               ) : (
                 <div className="w-full h-full bg-slate-900/5 animate-pulse" />
               )}
               <div className="absolute top-4 left-4 px-4 py-1.5 bg-white/20 backdrop-blur-xl border border-white/30 rounded-full text-white text-[10px] font-bold uppercase tracking-widest z-20 shadow-lg">
-                {video1.phase_name}
+                {phaseName1}
               </div>
-              {inView && (
+              {inView && video1?.video_url && (
                 <VideoControls isPlaying={isPlaying1} isMuted={isMuted1} onTogglePlay={togglePlay1} onToggleMute={toggleMute1} />
               )}
             </motion.div>
@@ -168,24 +169,30 @@ export const VideoShowcase = ({ showcaseVideos }) => {
             >
               <div className="absolute inset-0 bg-purple-900/10 mix-blend-overlay z-10 pointer-events-none" />
               {inView ? (
-                <video
-                  key={video2.video_url}
-                  ref={videoRef2}
-                  autoPlay={!isMobile}
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                >
-                  <source src={video2.video_url} type="video/mp4" />
-                </video>
+                video2?.video_url ? (
+                  <video
+                    key={video2.video_url}
+                    ref={videoRef2}
+                    autoPlay={!isMobile}
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  >
+                    <source src={video2.video_url} type="video/mp4" />
+                  </video>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-slate-900 to-indigo-950 flex flex-col items-center justify-center text-white select-none">
+                    <span className="text-sm font-black uppercase tracking-[0.3em] opacity-40">videos</span>
+                  </div>
+                )
               ) : (
                 <div className="w-full h-full bg-slate-900/5 animate-pulse" />
               )}
               <div className="absolute top-4 left-4 px-4 py-1.5 bg-white/20 backdrop-blur-xl border border-white/30 rounded-full text-white text-[10px] font-bold uppercase tracking-widest z-20 shadow-lg">
-                {video2.phase_name}
+                {phaseName2}
               </div>
-              {inView && (
+              {inView && video2?.video_url && (
                 <VideoControls isPlaying={isPlaying2} isMuted={isMuted2} onTogglePlay={togglePlay2} onToggleMute={toggleMute2} />
               )}
             </motion.div>
@@ -271,13 +278,19 @@ export const VideoShowcase = ({ showcaseVideos }) => {
             {/* Left Media Block */}
             <div className="w-full md:w-1/2 bg-slate-950 relative overflow-hidden flex items-center min-h-[220px] md:min-h-auto">
               <div className="absolute inset-0 bg-indigo-950/20 mix-blend-overlay z-10 pointer-events-none" />
-              <video
-                key={modalActiveTab} // force video reload/restart on tab switch
-                autoPlay muted loop playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-90"
-              >
-                <source src={modalActiveTab === 0 ? video1.video_url : video2.video_url} type="video/mp4" />
-              </video>
+              {(modalActiveTab === 0 ? video1?.video_url : video2?.video_url) ? (
+                <video
+                  key={modalActiveTab} // force video reload/restart on tab switch
+                  autoPlay muted loop playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-90"
+                >
+                  <source src={modalActiveTab === 0 ? video1.video_url : video2.video_url} type="video/mp4" />
+                </video>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-indigo-950 flex flex-col items-center justify-center text-white select-none">
+                  <span className="text-sm font-black uppercase tracking-[0.3em] opacity-40">videos</span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent z-10 pointer-events-none" />
               
               <div className="absolute bottom-6 left-6 z-20">
@@ -285,7 +298,7 @@ export const VideoShowcase = ({ showcaseVideos }) => {
                   {modalActiveTab === 0 ? "Stage 01" : "Stage 02"}
                 </span>
                 <h3 className="text-white text-xl font-bold tracking-tight mt-2.5">
-                  {modalActiveTab === 0 ? video1.phase_name : video2.phase_name}
+                  {modalActiveTab === 0 ? phaseName1 : phaseName2}
                 </h3>
               </div>
             </div>

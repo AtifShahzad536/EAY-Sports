@@ -33,7 +33,7 @@ const Navbar = ({ onBack, backTo }) => {
                 const toastId = toast.loading('Uploading 3D model to server...');
                 const formData = new FormData();
                 formData.append('file', file);
-                
+
                 fetch('/api/model/upload', {
                   method: 'POST',
                   headers: {
@@ -70,15 +70,15 @@ const Navbar = ({ onBack, backTo }) => {
       ]
     },
     {
-        label: 'View',
-        items: [
-          { label: 'Toggle HUD', action: () => window.dispatchEvent(new CustomEvent('eay:toggleHUD')) },
-        ]
+      label: 'View',
+      items: [
+        { label: 'Toggle HUD', action: () => window.dispatchEvent(new CustomEvent('eay:toggleHUD')) },
+      ]
     }
   ];
 
   const isLandingPage = !window.location.pathname.includes('/builder/');
-  
+
   if (isLandingPage) {
     menuData = menuData.filter(m => m.label !== 'File' && m.label !== 'View');
   }
@@ -108,25 +108,25 @@ const Navbar = ({ onBack, backTo }) => {
     >
       {/* ── Navigation / Exit Logic (Always Shown) ── */}
       <div className="flex items-stretch border-r border-gray-100">
-         <button 
-           onClick={handleExit}
-           className="px-4 flex items-center gap-2 hover:bg-gray-100 transition-colors border-r border-gray-100 group"
-           title={onBack ? "Return to Library" : "Exit to Store"}
-         >
-            <HiOutlineArrowLeft className="text-gray-400 group-hover:text-blue-600 transition-colors" size={14} />
-            <span className="text-[10px] font-bold text-gray-500 group-hover:text-gray-900 uppercase tracking-tighter">Exit</span>
-         </button>
+        <button
+          onClick={handleExit}
+          className="px-4 flex items-center gap-2 hover:bg-gray-100 transition-colors border-r border-gray-100 group"
+          title={onBack ? "Return to Library" : "Exit to Store"}
+        >
+          <HiOutlineArrowLeft className="text-gray-400 group-hover:text-blue-600 transition-colors" size={14} />
+          <span className="text-[10px] font-bold text-gray-500 group-hover:text-gray-900 uppercase tracking-tighter">Exit</span>
+        </button>
       </div>
 
       {/* ── VS Code Style Logo & Branding ── */}
       <div className="flex items-center px-4 gap-4 border-r border-gray-100 bg-gray-50/10">
         <div className="flex items-center gap-2.5">
-           <Link href="/" className="w-4 h-4 bg-blue-600 flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0">
-             <span className="text-white font-bold text-[9px]">E</span>
-           </Link>
-           <span className="hidden sm:inline text-[10px] font-bold text-gray-900 uppercase tracking-[0.1em] whitespace-nowrap">
-             Elite <span className="text-blue-600">Studio</span>
-           </span>
+          <Link href="/" className="w-4 h-4 bg-blue-600 flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0">
+            <span className="text-white font-bold text-[9px]">E</span>
+          </Link>
+          <span className="hidden sm:inline text-[10px] font-bold text-gray-900 uppercase tracking-[0.1em] whitespace-nowrap">
+            Elite <span className="text-blue-600">Studio</span>
+          </span>
         </div>
       </div>
 
@@ -156,8 +156,8 @@ const Navbar = ({ onBack, backTo }) => {
                       <span className="tracking-wide whitespace-nowrap">{item.label}</span>
                     </div>
                     <span className="text-[8px] opacity-40 group-hover:opacity-60 ml-8 tracking-tighter">
-                       {menu.label === 'File' && i === 1 ? 'CTRL+S' : ''}
-                       {menu.label === 'Edit' && i === 0 ? 'CTRL+R' : ''}
+                      {menu.label === 'File' && i === 1 ? 'CTRL+S' : ''}
+                      {menu.label === 'Edit' && i === 0 ? 'CTRL+R' : ''}
                     </span>
                   </button>
                 ))}
@@ -169,12 +169,12 @@ const Navbar = ({ onBack, backTo }) => {
 
       {/* ── Active File / Project Name Indicator ── */}
       <div className="hidden md:flex flex-1 items-center justify-center pointer-events-none">
-         <div className="px-3 py-0.5 bg-gray-50 border border-gray-100 rounded-none flex items-center gap-2">
-            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em]">Active Workspace:</span>
-            <span className="text-[9px] font-semibold text-gray-700 uppercase tracking-widest">
-               {window.location.pathname.includes('/builder/') ? 'Jersey_Library_Context' : 'Studio_Entry_Context'}
-            </span>
-         </div>
+        <div className="px-3 py-0.5 bg-gray-50 border border-gray-100 rounded-none flex items-center gap-2">
+          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em]">Active Workspace:</span>
+          <span className="text-[9px] font-semibold text-gray-700 uppercase tracking-widest">
+            {window.location.pathname.includes('/builder/') ? 'Jersey_Library_Context' : 'Studio_Entry_Context'}
+          </span>
+        </div>
       </div>
 
       {/* ── System Status ── */}

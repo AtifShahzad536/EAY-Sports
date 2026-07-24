@@ -13,12 +13,14 @@ class BuilderModel extends Model
         'thumbnail',
         'mapping',
         'layers_metadata',
+        'is_featured',
         'status',
     ];
 
     protected $casts = [
         'mapping' => 'array',
         'layers_metadata' => 'array',
+        'is_featured' => 'boolean',
         'status' => 'boolean',
     ];
 

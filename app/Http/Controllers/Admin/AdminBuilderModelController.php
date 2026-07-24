@@ -31,8 +31,9 @@ class AdminBuilderModelController extends Controller
             'status' => 'boolean',
         ]);
 
-        $data = $request->except(['model_file', 'status']);
+        $data = $request->except(['model_file', 'status', 'is_featured']);
         $data['status'] = $request->has('status');
+        $data['is_featured'] = $request->has('is_featured');
         $mapping = [];
         if ($request->has('mapping_keys') && $request->has('mapping_values')) {
             $keys = $request->input('mapping_keys');
@@ -82,8 +83,9 @@ class AdminBuilderModelController extends Controller
             'model_file' => 'nullable|file',
         ]);
 
-        $data = $request->except(['model_file', 'status']);
+        $data = $request->except(['model_file', 'status', 'is_featured']);
         $data['status'] = $request->has('status');
+        $data['is_featured'] = $request->has('is_featured');
 
         $layersMetadata = [];
         if ($request->has('layers')) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as LucideIcons from 'lucide-react'
 import { SPACING } from '../config/theme'
@@ -19,11 +19,39 @@ const categories = [
 ]
 
 export const FAQ = ({ hero, faqs = [] }) => {
-  const [activeCat, setActiveCat] = useState('general')
+  const [activeCat, setActiveCat] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const cat = params.get('category')
+      if (cat) return cat
+    }
+    return 'general'
+  })
   const [openIndex, setOpenIndex] = useState(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const cat = params.get('category')
+      if (cat && cat !== activeCat) {
+        setActiveCat(cat)
+        setOpenIndex(null)
+      }
+    }
+  }, [window.location.search])
 
   const toggleFaq = (index) => {
     setOpenIndex(openIndex === index ? null : index)
+  }
+
+  const handleCatChange = (catId) => {
+    setActiveCat(catId)
+    setOpenIndex(null)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('category', catId)
+      window.history.replaceState({}, '', url.toString())
+    }
   }
 
   const filteredFaqs = faqs.filter(faq => faq.category === activeCat)
@@ -33,7 +61,7 @@ export const FAQ = ({ hero, faqs = [] }) => {
 
   return (
     <div className="pt-20 bg-slate-50 min-h-screen font-sans">
-      
+
       {/* Banner */}
       <section className="relative bg-indigo-600 py-20 overflow-hidden text-center">
         <div className="absolute inset-0 opacity-10">
@@ -53,7 +81,7 @@ export const FAQ = ({ hero, faqs = [] }) => {
       {/* Main Area Grid */}
       <section className={`${SPACING.container} max-w-5xl py-16 px-4`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
+
           {/* Navigation Category Tabs */}
           <div className="md:col-span-1 space-y-2">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-4 ps-2">Help Categories</span>
@@ -63,12 +91,11 @@ export const FAQ = ({ hero, faqs = [] }) => {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => { setActiveCat(cat.id); setOpenIndex(null); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-left ${
-                    isActive
+                  onClick={() => handleCatChange(cat.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-left ${isActive
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10'
                       : 'bg-white text-slate-600 border border-slate-200/50 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   <Icon size={16} />
                   <span>{cat.name}</span>
@@ -104,9 +131,8 @@ export const FAQ = ({ hero, faqs = [] }) => {
                         </span>
                         <LucideIcons.ChevronDown
                           size={18}
-                          className={`text-slate-400 transition-transform duration-300 flex-shrink-0 ${
-                            isOpen ? 'rotate-180 text-indigo-600' : ''
-                          }`}
+                          className={`text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-indigo-600' : ''
+                            }`}
                         />
                       </button>
 

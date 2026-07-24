@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
             ShowcaseVideoSeeder::class,
             HomeCategorySeeder::class,
             BuilderPatternSeeder::class,
+            PageContentSeeder::class,
         ]);
     }
 }

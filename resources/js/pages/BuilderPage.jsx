@@ -135,21 +135,23 @@ export const BuilderPage = ({ id, dynamicDesigns, defaultPatterns, defaultLogos,
   }, [dispatch]);
 
   const handleSelectDesign = (design) => {
-    // Allow all users (including guests) to enter the builder.
-    // Auth is only required at checkout time.
+    const categoryName = design.category || design.name.split(' / ')[0] || 'All';
     const urlParams = new URLSearchParams(window.location.search);
     const fromParam = urlParams.get('from');
-    const query = fromParam ? `?from=${fromParam}` : '';
-    router.visit(`/builder/${design.id}${query}`);
+    const query = fromParam ? `&from=${fromParam}` : '';
+    router.visit(`/builder/models?category=${encodeURIComponent(categoryName)}${query}`);
   };
 
   const handleBackToLanding = () => {
-    // Show the GPU-clearing spinner for 200ms, then navigate back to /builder (landing)
     setIsTransitioning(true);
     dispatch(incrementRefreshKey());
     setTimeout(() => {
       setIsTransitioning(false);
-      router.visit('/builder');
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        router.visit('/builder/models');
+      }
     }, 200);
   };
 

@@ -202,21 +202,21 @@ class AdminDashboardController extends Controller
         if (! empty($soldQuantities)) {
             arsort($soldQuantities);
             $topProductIds = array_slice(array_keys($soldQuantities), 0, 5);
-            $products = Product::whereIn('id', $topProductIds)->get();
+            $products = Product::with('categories')->whereIn('id', $topProductIds)->get();
             foreach ($products as $prod) {
                 $topProducts[] = [
                     'name' => $prod->title,
                     'price' => $prod->price,
                     'sold' => $soldQuantities[$prod->id] ?? 0,
                     'featured_image' => $prod->featured_image,
-                    'category' => $prod->categories()->first()->name ?? 'General',
+                    'category' => $prod->categories->first()->name ?? 'General',
                 ];
             }
         }
 
         // If no products have been sold yet, pull standard ones as demo/placeholder
         if (empty($topProducts)) {
-            $products = Product::limit(5)->get();
+            $products = Product::with('categories')->limit(5)->get();
             $simulatedSales = [312, 145, 89, 65, 42]; // matching the theme of sales
             foreach ($products as $index => $prod) {
                 $topProducts[] = [
@@ -224,7 +224,7 @@ class AdminDashboardController extends Controller
                     'price' => $prod->price,
                     'sold' => $simulatedSales[$index] ?? 10,
                     'featured_image' => $prod->featured_image,
-                    'category' => $prod->categories()->first()->name ?? 'Sports',
+                    'category' => $prod->categories->first()->name ?? 'Sports',
                 ];
             }
         }

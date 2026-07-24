@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { loginUser, registerUser } from '../store/authSlice'
 import { router } from '@inertiajs/react'
 import toast from 'react-hot-toast'
+import Swal from 'sweetalert2'
 
 const AUTH_IMAGE = 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&h=1600&fit=crop&q=80'
 
@@ -21,6 +22,10 @@ export const Auth = () => {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const { loading: isLoading } = useSelector((state) => state.auth)
+
+  const handleForgotPassword = () => {
+    router.visit('/forgot-password')
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -178,7 +183,7 @@ export const Auth = () => {
               <div className="flex items-center justify-between mb-2">
                 <label className={`block text-xs uppercase tracking-wider font-medium ${TEXT.mid}`}>Password</label>
                 {mode === 'login' && (
-                  <button type="button" className="text-sm text-indigo-600 hover:underline">
+                  <button type="button" onClick={handleForgotPassword} className="text-sm text-indigo-600 hover:underline">
                     Forgot password?
                   </button>
                 )}

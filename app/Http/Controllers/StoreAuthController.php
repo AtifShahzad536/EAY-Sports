@@ -306,4 +306,101 @@ class StoreAuthController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Show the forgot password form.
+     */
+    public function showForgotPassword()
+    {
+        return \Inertia\Inertia::render('ForgotPassword');
+    }
+
+    /**
+     * Generate a password-reset token and redirect to the reset form.
+     */
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        $user = User::whereIn('role', ['customer', 'dealer'])->where('email', $request->email)->first();
+
+        if (! $user) {
+            return redirect()->back()->withErrors([
+                'email' => 'We could not find an account with that email address.',
+            ]);
+        }
+
+        // Generate a token and store it
+        $token = \Illuminate\Support\Str::random(64);
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => \Illuminate\Support\Facades\Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        // Redirect directly to the reset form with the token in the URL (following local demo pattern)
+        return redirect("/reset-password/{$token}?email=".urlencode($user->email))
+            ->with('success', 'Password reset link generated. Please set your new password.');
+    }
+
+    /**
+     * Show the reset-password form.
+     */
+    public function showResetForm(Request $request, $token)
+    {
+        return \Inertia\Inertia::render('ResetPassword', [
+            'token' => $token,
+            'email' => $request->query('email', ''),
+        ]);
+    }
+
+    /**
+     * Reset the user's password.
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $record = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (! $record || ! \Illuminate\Support\Facades\Hash::check($request->token, $record->token)) {
+            return redirect()->back()->withErrors([
+                'email' => 'This password reset link is invalid or has expired.',
+            ]);
+        }
+
+        // Check if token is older than 60 minutes
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            return redirect()->back()->withErrors([
+                'email' => 'This password reset link has expired. Please request a new one.',
+            ]);
+        }
+
+        $user = User::whereIn('role', ['customer', 'dealer'])->where('email', $request->email)->first();
+
+        if (! $user) {
+            return redirect()->back()->withErrors([
+                'email' => 'We could not find an account with that email address.',
+            ]);
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        // Clean up the token
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('auth')->with('success', 'Your password has been reset successfully! Please sign in with your new password.');
+    }
 }

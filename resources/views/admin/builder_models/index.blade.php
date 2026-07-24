@@ -25,6 +25,7 @@
                             <th>Name</th>
                             <th>Category</th>
                             <th>Status</th>
+                            <th>Featured Card</th>
                             <th>Created At</th>
                             <th class="text-end pe-4">Actions</th>
                         </tr>
@@ -40,6 +41,13 @@
                                         <span class="badge bg-success">Active</span>
                                     @else
                                         <span class="badge bg-danger">Inactive</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($model->is_featured)
+                                        <span class="badge bg-warning text-dark">★ Show on Basis Landing</span>
+                                    @else
+                                        <span class="badge bg-light text-muted">Standard</span>
                                     @endif
                                 </td>
                                 <td class="small">

@@ -807,7 +807,31 @@ const MeshPart = memo(function MeshPart({ node, state, finish, globalPattern }) 
 const Model = memo(function Model({ url, layersMetadata = {}, meshStates, onMeshesDetected, decals, selectedDecalId, setSelectedDecalId, updateDecal, removeDecal, finish, globalPattern, mouseFollow }) {
   const { scene: rootScene, viewport, invalidate } = useThree();
   const { scene } = useGLTF(url);
-  const clonedScene = useMemo(() => scene.clone(), [scene]);
+  const clonedScene = useMemo(() => {
+    const clone = scene.clone();
+    
+    // Update world matrices of the cloned hierarchy
+    clone.updateMatrixWorld(true);
+    
+    // Decompose world transform relative to the scene root into local coordinates
+    clone.traverse(c => {
+      if (c.isMesh) {
+        const position = new THREE.Vector3();
+        const quaternion = new THREE.Quaternion();
+        const scale = new THREE.Vector3();
+        
+        c.matrixWorld.decompose(position, quaternion, scale);
+        
+        c.position.copy(position);
+        c.quaternion.copy(quaternion);
+        c.scale.copy(scale);
+        
+        c.updateMatrix();
+      }
+    });
+    
+    return clone;
+  }, [scene]);
   const decalMeshesRef = useRef({});
   const meshRef = useRef();
   const mouse = useRef({ x: 0, y: 0 });
@@ -842,6 +866,28 @@ const Model = memo(function Model({ url, layersMetadata = {}, meshStates, onMesh
     clonedScene.traverse(c => { if (c.isMesh) list.push(c); });
     return list;
   }, [clonedScene]);
+
+  // Center scene meshes automatically to fix GLB files exported far from origin
+  useEffect(() => {
+    if (clonedScene && meshRef.current && meshes.length > 0) {
+      meshRef.current.updateMatrixWorld(true);
+      
+      // Filter out tiny detached meshes (like collar buttons exported 100 meters away)
+      const clothMeshes = meshes.filter(m => {
+        const b = new THREE.Box3().setFromObject(m);
+        const s = b.getSize(new THREE.Vector3());
+        return (s.x > 0.1 || s.y > 0.1 || s.z > 0.1);
+      });
+
+      const targetMeshes = clothMeshes.length > 0 ? clothMeshes : meshes;
+      const box = new THREE.Box3();
+      targetMeshes.forEach(m => box.expandByObject(m));
+
+      const center = box.getCenter(new THREE.Vector3());
+      // Move meshRef so the main cloth bounding box center is at Y = 0
+      meshRef.current.position.set(-center.x, -center.y, -center.z);
+    }
+  }, [clonedScene, meshes]);
 
   // Detect meshes
   useEffect(() => {
@@ -1477,24 +1523,24 @@ const Model = memo(function Model({ url, layersMetadata = {}, meshStates, onMesh
   }, [rootScene]);
 
   return (
-    <group ref={meshRef} scale={1.8} onPointerDown={handleMeshClick}>
+    <group ref={meshRef} position={[0, -0.2, 0]} scale={1.8} onPointerDown={handleMeshClick}>
       {meshes.map(m => {
-        const meta = layersMetadata[m.name] || {};
-        const stateKey = meta.merge_parent || m.name;
-        const parentMeta = layersMetadata[stateKey] || {};
-        const isLocked = meta.is_locked || parentMeta.is_locked;
+          const meta = layersMetadata[m.name] || {};
+          const stateKey = meta.merge_parent || m.name;
+          const parentMeta = layersMetadata[stateKey] || {};
+          const isLocked = meta.is_locked || parentMeta.is_locked;
 
-        if (isLocked) {
+          if (isLocked) {
+            return (
+              <primitive key={m.uuid} object={m} />
+            );
+          }
+
           return (
-            <primitive key={m.uuid} object={m} />
+            <MeshPart key={m.uuid} node={m} state={meshStates[stateKey]} finish={finish} globalPattern={globalPattern} />
           );
-        }
-
-        return (
-          <MeshPart key={m.uuid} node={m} state={meshStates[stateKey]} finish={finish} globalPattern={globalPattern} />
-        );
-      })}
-    </group>
+        })}
+      </group>
   );
 })
 
@@ -1510,22 +1556,20 @@ const ModelViewer = memo(({ modelUrl, layersMetadata = {}, meshStates, onMeshesD
         <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={lightingPreset === 'studio' ? 2.5 : 1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={lightingPreset === 'night' ? 0.1 : 0.5} />
         <Suspense fallback={<CoolLoader />}>
-          <Center>
-            <Model
-              url={modelUrl}
-              layersMetadata={layersMetadata}
-              meshStates={meshStates}
-              onMeshesDetected={onMeshesDetected}
-              decals={decals}
-              selectedDecalId={selectedDecalId}
-              setSelectedDecalId={setSelectedDecalId}
-              updateDecal={updateDecal}
-              removeDecal={removeDecal}
-              finish={materialFinish}
-              globalPattern={globalPattern}
-              mouseFollow={mouseFollow}
-            />
-          </Center>
+          <Model
+            url={modelUrl}
+            layersMetadata={layersMetadata}
+            meshStates={meshStates}
+            onMeshesDetected={onMeshesDetected}
+            decals={decals}
+            selectedDecalId={selectedDecalId}
+            setSelectedDecalId={setSelectedDecalId}
+            updateDecal={updateDecal}
+            removeDecal={removeDecal}
+            finish={materialFinish}
+            globalPattern={globalPattern}
+            mouseFollow={mouseFollow}
+          />
 
           {/* Floating Controls — theme-matched, just above text */}
           {/* Hide floating controls for pattern decals — patterns are locked in place */}

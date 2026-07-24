@@ -39,6 +39,12 @@
                 </div>
 
                 <div class="mb-3 form-check">
+                    <input type="checkbox" name="is_featured" value="1" class="form-check-input" id="featuredCheck">
+                    <label class="form-check-label fw-bold text-primary" for="featuredCheck">★ Show as Main Card on Builder Landing Page (CHOOSE BASIS)</label>
+                    <small class="text-muted d-block">If checked, this model will represent its category on the main /builder landing screen.</small>
+                </div>
+
+                <div class="mb-3 form-check">
                     <input type="checkbox" name="status" value="1" class="form-check-input" id="statusCheck" checked>
                     <label class="form-check-label" for="statusCheck">Active</label>
                 </div>

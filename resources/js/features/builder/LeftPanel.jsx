@@ -207,14 +207,11 @@ const LeftPanel = ({
           mouseFollow={mouseFollow}
         />
 
-        <div className={`absolute top-4 md:top-6 right-4 md:left-6 pointer-events-none select-none z-10 transition-all duration-500 
+        <div className={`absolute top-3 left-3 pointer-events-none select-none z-10 transition-all duration-500 
           ${isHUDVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-          <div className="flex items-center gap-3 md:gap-4 px-3 md:px-4 py-2 bg-white/90 backdrop-blur-md border border-gray-100 rounded-none shadow-xl">
-            <div className="w-1.5 h-1.5 rounded-none bg-blue-600 animate-pulse" />
-            <div className="flex flex-col">
-              <span className="text-[7px] font-semibold text-gray-400 uppercase tracking-[0.2em]">Studio Mode</span>
-              <span className="text-[9px] md:text-[9px] font-semibold text-gray-900 uppercase tracking-widest">{meshes.length} Active Parts</span>
-            </div>
+          <div className="flex items-center gap-2 px-2.5 py-1 bg-white/80 backdrop-blur-md border border-gray-200/60 rounded-full shadow-sm">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-[9px] font-bold text-gray-700 tracking-wide">{meshes.length} Active Parts</span>
           </div>
         </div>
 
